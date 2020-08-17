@@ -66,15 +66,11 @@ def main():
     reader.SetFileName(vti_file)
     
     # Load texture
-    readerFactory = vtk.vtkImageReader2Factory()
-    textureFile = readerFactory.CreateImageReader2(texture_file)
-    textureFile.SetFileName(texture_file)
-    textureFile.Update()
-
-    atext = vtk.vtkTexture()
-    atext.SetInputConnection(textureFile.GetOutputPort())
-    atext.InterpolateOn()
-
+    textureReader = vtk.vtkJPEGReader()
+    textureReader.SetFileName(texture_file)
+    texture = vtk.vtkTexture()
+    texture.SetInputConnection(textureReader.GetOutputPort())
+    
     # generate warp from vti.
     global warp
     warp.SetInputConnection(reader.GetOutputPort())
@@ -84,19 +80,17 @@ def main():
     merge_warp.SetGeometryConnection(warp.GetOutputPort())
     merge_warp.SetScalarsConnection(reader.GetOutputPort())
     
-    # testing merge texture image with warp.
-    #merge = vtk.vtkMergeFilter()
-    #merge.SetGeometryConnection(merge_warp.GetOutputPort())
-    #merge.SetScalarsConnection(textureFile.GetOutputPort())
     
     mapper = vtk.vtkDataSetMapper()
     mapper.SetInputConnection(merge_warp.GetOutputPort())
     mapper.SetScalarRange(0, 255)
+    mapper.ScalarVisibilityOff()
+    
     actor = vtk.vtkActor()
     actor.SetMapper(mapper)
     
     # texture assigment doesn't work.
-    #actor.SetTexture(atext)
+    actor.SetTexture(texture)
     
     # Create renderer stuff
     renderer = vtk.vtkRenderer()
