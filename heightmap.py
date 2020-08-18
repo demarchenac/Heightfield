@@ -143,6 +143,8 @@ def generate_gui(actor):
     cam1 = renderer.GetActiveCamera()
     cam1.Zoom(1.5)
     
+    # Smoother camera controls
+    renderer_window_interactor.GetInteractorStyle().SetCurrentStyleToTrackballCamera();
     renderer_window_interactor.Initialize()
     renderer_window.Render()
     renderer_window.SetWindowName('Heightmap Visualizer')
