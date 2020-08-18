@@ -33,6 +33,7 @@ def generate_slide_bar():
     
     slide_bar.SetMinimumValue(-100.0)
     slide_bar.SetMaximumValue(100.0)
+    slide_bar.SetValue(-75)
     slide_bar.SetTitleText("Scalar Value")
     
     slide_bar.GetSliderProperty().SetColor(red_r, red_g, red_b)
@@ -42,11 +43,11 @@ def generate_slide_bar():
     slide_bar.GetTubeProperty().SetColor(white, white, white)
     slide_bar.GetCapProperty().SetColor(red_r, red_g, red_b)
     
-    slide_bar.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
-    slide_bar.GetPoint1Coordinate().SetValue(30,100)
+    slide_bar.GetPoint1Coordinate().SetCoordinateSystemToNormalizedDisplay()
+    slide_bar.GetPoint1Coordinate().SetValue(0.78, 0.1)
     
-    slide_bar.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
-    slide_bar.GetPoint2Coordinate().SetValue(330,100)
+    slide_bar.GetPoint2Coordinate().SetCoordinateSystemToNormalizedDisplay()
+    slide_bar.GetPoint2Coordinate().SetValue(0.98 , 0.1)
     return slide_bar
 
 def custom_callback(obj, event):
@@ -66,23 +67,22 @@ def main():
     reader.SetFileName(vti_file)
     
     # Load texture
-    textureReader = vtk.vtkJPEGReader()
-    textureReader.SetFileName(texture_file)
-    texture = vtk.vtkTexture()
-    texture.SetInputConnection(textureReader.GetOutputPort())
-    
+    readerFactory = vtk.vtkImageReader2Factory()
+    textureFile = readerFactory.CreateImageReader2(texture_file)
+    textureFile.SetFileName(texture_file)
+    textureFile.Update()
+
+    atext = vtk.vtkTexture()
+    atext.SetInputConnection(textureFile.GetOutputPort())
+    atext.InterpolateOn()
+
     # generate warp from vti.
     global warp
     warp.SetInputConnection(reader.GetOutputPort())
     warp.SetScaleFactor(-75)
     
-    merge_warp = vtk.vtkMergeFilter()
-    merge_warp.SetGeometryConnection(warp.GetOutputPort())
-    merge_warp.SetScalarsConnection(reader.GetOutputPort())
-    
-    
     mapper = vtk.vtkDataSetMapper()
-    mapper.SetInputConnection(merge_warp.GetOutputPort())
+    mapper.SetInputConnection(warp.GetOutputPort())
     mapper.SetScalarRange(0, 255)
     mapper.ScalarVisibilityOff()
     
@@ -90,7 +90,7 @@ def main():
     actor.SetMapper(mapper)
     
     # texture assigment doesn't work.
-    actor.SetTexture(texture)
+    actor.SetTexture(atext)
     
     # Create renderer stuff
     renderer = vtk.vtkRenderer()
