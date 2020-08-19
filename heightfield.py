@@ -2,7 +2,7 @@
 """
 Created on Fri Aug 14 11:58:01 2020
 
-@author: John Corro
+@author: Jhon Corro
 @author: Cristhyan De Marchena
 """
 import vtk
@@ -147,7 +147,7 @@ def generate_gui(actor):
     renderer_window_interactor.GetInteractorStyle().SetCurrentStyleToTrackballCamera();
     renderer_window_interactor.Initialize()
     renderer_window.Render()
-    renderer_window.SetWindowName('Heightmap Visualizer')
+    renderer_window.SetWindowName('Heightfield Visualizer')
     renderer_window.Render()
     renderer_window_interactor.Start()
     
